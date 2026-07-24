@@ -1,0 +1,14 @@
+package com.ashutosh.digitalbanking.repository;
+
+import java.util.List;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.ashutosh.digitalbanking.entity.BankAccount;
+import com.ashutosh.digitalbanking.entity.BankTransaction;
+
+public interface BantTransactionRepository extends JpaRepository<BankTransaction, Long> {
+	
+	List<BankTransaction> findByBankAccount(BankAccount bankAccount);
+	
+}
