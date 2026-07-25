@@ -4,17 +4,15 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "bank_accounts")
+@Builder
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 public class BankAccount {
 	@Id 
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,9 +28,13 @@ public class BankAccount {
 	@Column(nullable = false)
 	private AccountType accountType;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
+	
+	@Enumerated(EnumType.STRING)
+	@Column(nullable = false)
+	private AccountStatus accountStatus;
 	
 	@OneToMany(mappedBy = "bankAccount")
 	private List<BankTransaction> transactions;

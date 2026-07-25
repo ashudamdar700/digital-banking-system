@@ -1,0 +1,15 @@
+package com.ashutosh.digitalbanking.dto;
+
+import com.ashutosh.digitalbanking.entity.AccountType;
+
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class CreateBankAccountRequest {
+
+	@NotNull(message = "Account type is required")
+	private AccountType accountType;
+}

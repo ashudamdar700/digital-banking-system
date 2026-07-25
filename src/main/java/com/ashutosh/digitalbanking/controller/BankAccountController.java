@@ -7,28 +7,28 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.ashutosh.digitalbanking.dto.RegisterUserRequest;
-import com.ashutosh.digitalbanking.dto.UserResponse;
-import com.ashutosh.digitalbanking.service.UserService;
+import com.ashutosh.digitalbanking.dto.AccountResponse;
+import com.ashutosh.digitalbanking.dto.CreateBankAccountRequest;
+import com.ashutosh.digitalbanking.service.BankAccountService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/users")
-public class UserController {
+@RequestMapping("/api/accounts")
+public class BankAccountController {
 
-	private final UserService userService;
+	private final BankAccountService bankAccountService;
 	
 	@PostMapping
-	public ResponseEntity<UserResponse> registerUser(
-			@Valid @RequestBody RegisterUserRequest request) {
+	public ResponseEntity<AccountResponse> createAccount(
+			@Valid @RequestBody CreateBankAccountRequest request) {
 		
-		UserResponse response = userService.registerUser(request);
+		AccountResponse response = bankAccountService.createBankAccount(request);
+		
 		return ResponseEntity
 				.status(HttpStatus.CREATED)
 				.body(response);
 	}
-	
 }
