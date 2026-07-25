@@ -1,6 +1,7 @@
 package com.ashutosh.digitalbanking.service.impl;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 import org.springframework.security.core.Authentication;
@@ -68,5 +69,26 @@ public class BankAccountServiceImpl implements BankAccountService {
 				 return accountNumber;
 			 }
 		}
+	}
+
+	@Override
+	public List<AccountResponse> getMyAccounts() {
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String email = authentication.getName();
+		
+		User user = userRepository.findByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		
+		List<BankAccount> accounts = bankAccountRepository.findByUser(user);
+		
+		return accounts.stream()
+				.map(account -> AccountResponse.builder()
+						.accountNumber(account.getAccountNumber())
+	                    .balance(account.getBalance())
+	                    .accountType(account.getAccountType())
+	                    .accountStatus(account.getAccountStatus())
+	                    .build())
+				.toList();
 	}
 }
