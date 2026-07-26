@@ -10,4 +10,6 @@ public interface BankAccountService {
 	AccountResponse createBankAccount(CreateBankAccountRequest request);
 	
 	List<AccountResponse> getMyAccounts();
+	
+	AccountResponse getAccountDetails(String accountNumber);
 }

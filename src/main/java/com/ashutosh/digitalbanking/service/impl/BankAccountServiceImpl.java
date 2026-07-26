@@ -31,14 +31,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 	@Override
     public AccountResponse createBankAccount(CreateBankAccountRequest request) {
 
-        Authentication authentication =
-                SecurityContextHolder.getContext().getAuthentication();
-
-        String email = authentication.getName();
-
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User not found"));
+        User user = getCurrentUser();
 
         BankAccount bankAccount = BankAccount.builder()
                 .accountNumber(generateAccountNumber())
@@ -74,11 +67,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 	@Override
 	public List<AccountResponse> getMyAccounts() {
 		
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String email = authentication.getName();
-		
-		User user = userRepository.findByEmail(email)
-				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+		User user = getCurrentUser();
 		
 		List<BankAccount> accounts = bankAccountRepository.findByUser(user);
 		
@@ -90,5 +79,30 @@ public class BankAccountServiceImpl implements BankAccountService {
 	                    .accountStatus(account.getAccountStatus())
 	                    .build())
 				.toList();
+	}
+
+	@Override
+	public AccountResponse getAccountDetails(String accountNumber) {
+		
+		User user = getCurrentUser();
+		
+		BankAccount account = bankAccountRepository
+				.findByAccountNumberAndUser(accountNumber, user)
+				.orElseThrow(() -> new ResourceNotFoundException("Account not found"));
+		
+		return AccountResponse.builder()
+				.accountNumber(account.getAccountNumber())
+				.balance(account.getBalance())
+				.accountType(account.getAccountType())
+				.accountStatus(account.getAccountStatus()).build();
+	}
+	
+	private User getCurrentUser() {
+		
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String email = authentication.getName();
+		
+		return userRepository.findByEmail(email)
+				.orElseThrow(() -> new ResourceNotFoundException("User not found"));
 	}
 }
