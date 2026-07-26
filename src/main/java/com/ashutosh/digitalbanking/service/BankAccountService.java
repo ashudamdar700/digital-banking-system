@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.ashutosh.digitalbanking.dto.AccountResponse;
 import com.ashutosh.digitalbanking.dto.CreateBankAccountRequest;
+import com.ashutosh.digitalbanking.dto.DepositRequest;
+import com.ashutosh.digitalbanking.dto.TransactionResponse;
 
 public interface BankAccountService {
 
@@ -12,4 +14,6 @@ public interface BankAccountService {
 	List<AccountResponse> getMyAccounts();
 	
 	AccountResponse getAccountDetails(String accountNumber);
+	
+	TransactionResponse deposit(String accountNumber, DepositRequest request);
 }

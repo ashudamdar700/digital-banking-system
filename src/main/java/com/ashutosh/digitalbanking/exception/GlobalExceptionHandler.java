@@ -45,6 +45,13 @@ public class GlobalExceptionHandler {
 	    return buildErrorResponse(HttpStatus.BAD_REQUEST, "Validation Failed", validationErrors);
 	}
 	
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+			ResourceNotFoundException ex) {
+
+		return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+	}
+	
 	//API to build ErrorResponse and avoid code repetition
 	private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
 

@@ -11,4 +11,6 @@ public interface BankTransactionRepository extends JpaRepository<BankTransaction
 	
 	List<BankTransaction> findByBankAccount(BankAccount bankAccount);
 	
+	boolean existsByReferenceNumber(String referenceNumber);
+	
 }
