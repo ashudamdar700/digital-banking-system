@@ -34,7 +34,7 @@ public class BankTransaction {
 	@Column(nullable = false)
 	private TransactionMode transactionMode;
 	
-	@Column(nullable = false, unique = true)
+	@Column(nullable = false)
 	private String referenceNumber;
 	
 	@Column(length = 255)

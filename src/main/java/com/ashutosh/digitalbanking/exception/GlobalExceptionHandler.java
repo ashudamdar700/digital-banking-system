@@ -59,6 +59,13 @@ public class GlobalExceptionHandler {
 		return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
 	}
 	
+	@ExceptionHandler(InvalidTransferException.class)
+	public ResponseEntity<ErrorResponse> handleInvalidTransferException(
+			InvalidTransferException ex) {
+
+		return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+	}
+	
 	//API to build ErrorResponse and avoid code repetition
 	private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
 

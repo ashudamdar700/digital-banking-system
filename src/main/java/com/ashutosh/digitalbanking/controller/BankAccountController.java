@@ -15,6 +15,7 @@ import com.ashutosh.digitalbanking.dto.AccountResponse;
 import com.ashutosh.digitalbanking.dto.CreateBankAccountRequest;
 import com.ashutosh.digitalbanking.dto.TransactionRequest;
 import com.ashutosh.digitalbanking.dto.TransactionResponse;
+import com.ashutosh.digitalbanking.dto.TransferRequest;
 import com.ashutosh.digitalbanking.service.BankAccountService;
 
 import jakarta.validation.Valid;
@@ -73,5 +74,15 @@ public class BankAccountController {
 		TransactionResponse response = bankAccountService.withdraw(accountNumber, request);
 		
 		return ResponseEntity.ok(response);
+	}
+	
+	@PostMapping("/{accountNumber}/transfer")
+	public ResponseEntity<TransactionResponse> transfer(
+	        @PathVariable String accountNumber,
+	        @Valid @RequestBody TransferRequest request) {
+
+		TransactionResponse response = bankAccountService.transfer(accountNumber, request);
+
+	    return ResponseEntity.ok(response);
 	}
 }

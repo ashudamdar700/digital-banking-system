@@ -6,6 +6,7 @@ import com.ashutosh.digitalbanking.dto.AccountResponse;
 import com.ashutosh.digitalbanking.dto.CreateBankAccountRequest;
 import com.ashutosh.digitalbanking.dto.TransactionRequest;
 import com.ashutosh.digitalbanking.dto.TransactionResponse;
+import com.ashutosh.digitalbanking.dto.TransferRequest;
 
 public interface BankAccountService {
 
@@ -18,4 +19,6 @@ public interface BankAccountService {
 	TransactionResponse deposit(String accountNumber, TransactionRequest request);
 	
 	TransactionResponse withdraw(String accountNumber, TransactionRequest request);
+	
+	TransactionResponse transfer(String accountNumber, TransferRequest request);
 }

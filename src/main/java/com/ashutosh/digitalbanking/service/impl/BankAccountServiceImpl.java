@@ -12,6 +12,7 @@ import com.ashutosh.digitalbanking.dto.AccountResponse;
 import com.ashutosh.digitalbanking.dto.CreateBankAccountRequest;
 import com.ashutosh.digitalbanking.dto.TransactionRequest;
 import com.ashutosh.digitalbanking.dto.TransactionResponse;
+import com.ashutosh.digitalbanking.dto.TransferRequest;
 import com.ashutosh.digitalbanking.entity.AccountStatus;
 import com.ashutosh.digitalbanking.entity.BankAccount;
 import com.ashutosh.digitalbanking.entity.BankTransaction;
@@ -19,6 +20,7 @@ import com.ashutosh.digitalbanking.entity.TransactionMode;
 import com.ashutosh.digitalbanking.entity.TransactionType;
 import com.ashutosh.digitalbanking.entity.User;
 import com.ashutosh.digitalbanking.exception.InsufficientBalanceException;
+import com.ashutosh.digitalbanking.exception.InvalidTransferException;
 import com.ashutosh.digitalbanking.exception.ResourceNotFoundException;
 import com.ashutosh.digitalbanking.repository.BankAccountRepository;
 import com.ashutosh.digitalbanking.repository.BankTransactionRepository;
@@ -114,7 +116,10 @@ public class BankAccountServiceImpl implements BankAccountService {
 		account.setBalance(account.getBalance().add(request.getAmount()));
 		bankAccountRepository.save(account);
 
-		BankTransaction transaction = createTransaction(account, request.getAmount(), TransactionType.CREDIT, TransactionMode.CASH_DEPOSIT, request.getRemarks());
+		String referenceNumber = generateReferenceNumber();
+		
+		BankTransaction transaction = createTransaction(account, request.getAmount(), TransactionType.CREDIT,
+				TransactionMode.CASH_DEPOSIT, request.getRemarks(), referenceNumber);
 
 		return buildTransactionResponse(transaction, account);
 	}
@@ -133,7 +138,10 @@ public class BankAccountServiceImpl implements BankAccountService {
 		account.setBalance(account.getBalance().subtract(request.getAmount()));
 		bankAccountRepository.save(account);
 		
-		BankTransaction transaction = createTransaction(account,request.getAmount(),TransactionType.DEBIT,TransactionMode.CASH_WITHDRAWAL,request.getRemarks());
+		String referenceNumber = generateReferenceNumber();
+		
+		BankTransaction transaction = createTransaction(account, request.getAmount(), TransactionType.DEBIT,
+				TransactionMode.CASH_WITHDRAWAL, request.getRemarks(), referenceNumber);
 
 		return buildTransactionResponse(transaction, account);
 	}
@@ -161,13 +169,14 @@ public class BankAccountServiceImpl implements BankAccountService {
 			BigDecimal amount,
 			TransactionType type,
 			TransactionMode mode,
-			String remarks) {
+			String remarks,
+			String referenceNumber) {
 		
 		BankTransaction transaction = BankTransaction.builder()
 				.amount(amount)
 				.transactionType(type)
 				.transactionMode(mode)
-				.referenceNumber(generateReferenceNumber())
+				.referenceNumber(referenceNumber)
 				.remarks(remarks)
 				.bankAccount(account)
 				.build();
@@ -186,5 +195,43 @@ public class BankAccountServiceImpl implements BankAccountService {
 				.transactionTime(transaction.getTransactionTime())
 				.remarks(transaction.getRemarks())
 				.build();
+	}
+
+	@Override
+	@Transactional
+	public TransactionResponse transfer(String accountNumber, TransferRequest request) {
+
+		User user = getCurrentUser();
+		
+		BankAccount senderAccount = getUserAccount(accountNumber, user);
+		
+		BankAccount receiverAccount = bankAccountRepository
+		        .findByAccountNumber(request.getDestinationAccountNumber())
+		        .orElseThrow(() ->
+		                new ResourceNotFoundException("Destination account not found"));
+		
+		if (senderAccount.getId().equals(receiverAccount.getId())) {
+			throw new InvalidTransferException("Cannot transfer to the same account");
+		}
+		
+		if (senderAccount.getBalance().compareTo(request.getAmount()) < 0) {
+		    throw new InsufficientBalanceException("Insufficient balance");
+		}
+		
+		senderAccount.setBalance(senderAccount.getBalance().subtract(request.getAmount()));
+		receiverAccount.setBalance(receiverAccount.getBalance().add(request.getAmount()));
+		
+		bankAccountRepository.save(senderAccount);
+		bankAccountRepository.save(receiverAccount);
+		
+		String referenceNumber = generateReferenceNumber();
+		
+		BankTransaction senderTransaction = createTransaction(senderAccount, request.getAmount(), TransactionType.DEBIT,
+				TransactionMode.ACCOUNT_TRANSFER, request.getRemarks(), referenceNumber);
+		
+		createTransaction(receiverAccount, request.getAmount(), TransactionType.CREDIT,
+				TransactionMode.ACCOUNT_TRANSFER, request.getRemarks(), referenceNumber);
+		
+		return buildTransactionResponse(senderTransaction, senderAccount);
 	}
 }
