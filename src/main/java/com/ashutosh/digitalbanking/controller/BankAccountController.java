@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.ashutosh.digitalbanking.dto.AccountResponse;
 import com.ashutosh.digitalbanking.dto.CreateBankAccountRequest;
-import com.ashutosh.digitalbanking.dto.DepositRequest;
+import com.ashutosh.digitalbanking.dto.TransactionRequest;
 import com.ashutosh.digitalbanking.dto.TransactionResponse;
 import com.ashutosh.digitalbanking.service.BankAccountService;
 
@@ -58,9 +58,19 @@ public class BankAccountController {
 	@PostMapping("/{accountNumber}/deposit")
 	public ResponseEntity<TransactionResponse> deposit(
 			@PathVariable String accountNumber,
-			@Valid @RequestBody DepositRequest request) {
+			@Valid @RequestBody TransactionRequest request) {
 		
 		TransactionResponse response = bankAccountService.deposit(accountNumber, request);
+		
+		return ResponseEntity.ok(response);
+	}
+	
+	@PostMapping("/{accountNumber}/withdraw")
+	public ResponseEntity<TransactionResponse> withdraw(
+			@PathVariable String accountNumber,
+			@Valid @RequestBody TransactionRequest request) {
+		
+		TransactionResponse response = bankAccountService.withdraw(accountNumber, request);
 		
 		return ResponseEntity.ok(response);
 	}

@@ -52,6 +52,13 @@ public class GlobalExceptionHandler {
 		return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
 	}
 	
+	@ExceptionHandler(InsufficientBalanceException.class)
+	public ResponseEntity<ErrorResponse> handleInsufficientBalanceException(
+			InsufficientBalanceException ex) {
+
+		return buildErrorResponse(HttpStatus.CONFLICT, ex.getMessage());
+	}
+	
 	//API to build ErrorResponse and avoid code repetition
 	private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
 
