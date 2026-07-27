@@ -2,7 +2,6 @@ package com.ashutosh.digitalbanking.security;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
-import java.security.Timestamp;
 import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Value;

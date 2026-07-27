@@ -19,6 +19,7 @@ import com.ashutosh.digitalbanking.entity.BankTransaction;
 import com.ashutosh.digitalbanking.entity.TransactionMode;
 import com.ashutosh.digitalbanking.entity.TransactionType;
 import com.ashutosh.digitalbanking.entity.User;
+import com.ashutosh.digitalbanking.exception.AccountNotActiveException;
 import com.ashutosh.digitalbanking.exception.InsufficientBalanceException;
 import com.ashutosh.digitalbanking.exception.InvalidTransferException;
 import com.ashutosh.digitalbanking.exception.ResourceNotFoundException;
@@ -112,6 +113,8 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 		User user = getCurrentUser();
 		BankAccount account = getUserAccount(accountNumber, user);
+		
+		validateAccountForTransaction(account, "Source");
 
 		account.setBalance(account.getBalance().add(request.getAmount()));
 		bankAccountRepository.save(account);
@@ -130,6 +133,8 @@ public class BankAccountServiceImpl implements BankAccountService {
 		
 		User user = getCurrentUser();
 		BankAccount account = getUserAccount(accountNumber, user);
+		
+		validateAccountForTransaction(account, "Source");
 		
 		if (account.getBalance().compareTo(request.getAmount()) < 0) {
 			throw new InsufficientBalanceException("Insufficient balance");
@@ -210,6 +215,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 		        .orElseThrow(() ->
 		                new ResourceNotFoundException("Destination account not found"));
 		
+		validateAccountForTransaction(senderAccount, "Source");
+		validateAccountForTransaction(receiverAccount, "Destination");
+		
 		if (senderAccount.getId().equals(receiverAccount.getId())) {
 			throw new InvalidTransferException("Cannot transfer to the same account");
 		}
@@ -233,5 +241,36 @@ public class BankAccountServiceImpl implements BankAccountService {
 				TransactionMode.ACCOUNT_TRANSFER, request.getRemarks(), referenceNumber);
 		
 		return buildTransactionResponse(senderTransaction, senderAccount);
+	}
+	
+	private void validateAccountForTransaction(BankAccount account, String accountRole ) {
+
+	    if (account.getAccountStatus() != AccountStatus.ACTIVE) {
+
+	        throw new AccountNotActiveException(
+	        		accountRole + " account is " + account.getAccountStatus()
+	        );
+	    }
+	}
+
+	@Override
+	public List<TransactionResponse> getAccountTransactions(String accountNumber) {
+
+	    User user = getCurrentUser();
+
+	    BankAccount account = getUserAccount(accountNumber, user);
+
+	    List<BankTransaction> transactions =
+	            bankTransactionRepository.findByBankAccountOrderByTransactionTimeDesc(account);
+
+	    return transactions.stream()
+				.map(transaction -> TransactionResponse.builder()
+						.referenceNumber(transaction.getReferenceNumber())
+						.amount(transaction.getAmount())
+						.transactionType(transaction.getTransactionType())
+						.transactionMode(transaction.getTransactionMode())
+						.transactionTime(transaction.getTransactionTime())
+						.remarks(transaction.getRemarks()).build())
+				.toList();
 	}
 }

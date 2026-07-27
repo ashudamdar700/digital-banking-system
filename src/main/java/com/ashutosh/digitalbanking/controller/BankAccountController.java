@@ -85,4 +85,14 @@ public class BankAccountController {
 
 	    return ResponseEntity.ok(response);
 	}
+	
+	@GetMapping("/{accountNumber}/transactions")
+	public ResponseEntity<List<TransactionResponse>> getTransactions(
+			@PathVariable String accountNumber){
+		List<TransactionResponse> response = bankAccountService.getAccountTransactions(accountNumber);
+		
+		return ResponseEntity.ok(response);
+		
+	}
+	
 }

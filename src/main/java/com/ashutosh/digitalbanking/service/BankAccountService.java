@@ -21,4 +21,6 @@ public interface BankAccountService {
 	TransactionResponse withdraw(String accountNumber, TransactionRequest request);
 	
 	TransactionResponse transfer(String accountNumber, TransferRequest request);
+
+	List<TransactionResponse> getAccountTransactions(String accountNumber);
 }

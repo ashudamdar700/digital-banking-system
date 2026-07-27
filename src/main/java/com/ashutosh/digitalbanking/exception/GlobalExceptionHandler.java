@@ -66,6 +66,13 @@ public class GlobalExceptionHandler {
 		return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
 	}
 	
+	@ExceptionHandler(AccountNotActiveException.class)
+	public ResponseEntity<ErrorResponse> handleAccountNotActive(
+	        AccountNotActiveException ex) {
+
+	    return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+	}
+	
 	//API to build ErrorResponse and avoid code repetition
 	private ResponseEntity<ErrorResponse> buildErrorResponse(HttpStatus status, String message) {
 

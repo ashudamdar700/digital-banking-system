@@ -9,7 +9,7 @@ import com.ashutosh.digitalbanking.entity.BankTransaction;
 
 public interface BankTransactionRepository extends JpaRepository<BankTransaction, Long> {
 	
-	List<BankTransaction> findByBankAccount(BankAccount bankAccount);
+	List<BankTransaction> findByBankAccountOrderByTransactionTimeDesc(BankAccount bankAccount);
 	
 	boolean existsByReferenceNumber(String referenceNumber);
 	
